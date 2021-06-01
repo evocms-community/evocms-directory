@@ -1,6 +1,6 @@
 @extends('directory::layout')
 
-@section('pagetitle', $document->pagetitle)
+@section('pagetitle', $folder ? $folder->pagetitle : $document->pagetitle)
 
 @section('buttons')
     <div id="actions">
