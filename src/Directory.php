@@ -2,6 +2,7 @@
 
 namespace EvolutionCMS\Directory;
 
+use DocumentManager;
 use EvolutionCMS\Models\SiteContent;
 
 class Directory
@@ -101,7 +102,11 @@ class Directory
 
     public function actionDuplicate($resources)
     {
-
+        $resources->each(function($resource) {
+            DocumentManager::duplicate([
+                'id' => $resource->id,
+            ]);
+        });
     }
 
     private function getDefaultConfig()
