@@ -3,7 +3,7 @@
 namespace EvolutionCMS\Directory;
 
 use DocumentManager;
-use EvolutionCMS\Models\SiteContent;
+use EvolutionCMS\Models\{SiteContent, SiteTmplvar};
 
 class Directory
 {
@@ -63,19 +63,43 @@ class Directory
 
     public function getResources(SiteContent $parent, array $config)
     {
+        $names = array_keys($config['columns']);
+        $tvs = $this->getTmplvarsValues($names);
+
         $items = $parent->children()
-            ->withTVs(array_keys($config['columns']))
+            ->withTVs($names)
             ->when(isset($config['query']), $config['query'])
             ->orderBy('isfolder', 'desc')
             ->orderBy('menuindex')
-            ->paginate(20);
-            /*->map(function($item) use ($config) {
+            ->paginate(20)
+            ->through(function($item) use ($config, $tvs) {
                 if (isset($config['prepare'])) {
-                    $item = call_user_func($config['prepare'], $item);
+                    $item = call_user_func($config['prepare'], $item, $config);
+                }
+
+                if (!($item instanceof SiteContent)) {
+                    return false;
+                }
+
+                foreach ($tvs as $name => $options) {
+                    if (isset($item->{$name}) && is_scalar($item->{$name})) {
+                        $result = [];
+                        $values = array_map('trim', explode('||', $item->{$name}));
+
+                        foreach ($values as $value) {
+                            if (isset($options['values'][$value])) {
+                                $value = $options['values'][$value];
+                            }
+
+                            $result[] = $value;
+                        }
+
+                        $item->{$name} = implode(', ', $result);
+                    }
                 }
 
                 return $item;
-            });*/
+            });
 
         return $items;
     }
@@ -107,6 +131,48 @@ class Directory
                 'id' => $resource->id,
             ]);
         });
+    }
+
+    private function getTmplvarsValues(array $names = [])
+    {
+        $result = [];
+
+        foreach ($names as $name) {
+            $row = SiteTmplvar::where('name', $name)->first();
+
+            if (!empty($row->elements)) {
+                $values   = [];
+                $elements = ParseIntputOptions(ProcessTVCommand($row->elements, '', '', 'tvform', $tv = []));
+
+                if (!empty($elements)) {
+                    foreach ($elements as $element) {
+                        list($val, $key) = is_array($element) ? $element : explode('==', $element);
+
+                        if (strlen($val) == 0) {
+                            $val = $key;
+                        }
+
+                        if (strlen($key) == 0) {
+                            $key = $val;
+                        }
+
+                        $values[$key] = $val;
+                    }
+                }
+
+                if (!empty($values)) {
+                    $result[$name] = [
+                        'values' => $values,
+                    ];
+
+                    if (in_array($row->type, ['checkbox', 'listbox-multiple'])) {
+                        $result[$name]['multiple'] = true;
+                    }
+                }
+            }
+        }
+
+        return $result;
     }
 
     private function getDefaultConfig()
