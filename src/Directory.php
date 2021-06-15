@@ -38,6 +38,7 @@ class Directory
             $config = $configs[$id];
             $default = $this->getDefaultConfig();
             $config['columns'] = array_merge($default['columns'], $config['columns'] ?? []);
+            $config['tree_config'] = array_merge($default['tree_config'], $config['tree_config'] ?? []);
             $config = array_merge($default, $config);
             $config['lang'] = array_merge(__('directory::messages'), $config['lang']);
 
@@ -186,6 +187,12 @@ class Directory
                 'delete',
                 'restore',
                 'duplicate',
+            ],
+
+            'tree_config' => [
+                'icon'              => '<i class="fa fa-list-alt"></i>',
+                'icon_folder_open'  => "<i class='fa fa-list-alt'></i>",
+                'icon_folder_close' => "<i class='fa fa-list-alt'></i>",
             ],
 
             'columns' => [
