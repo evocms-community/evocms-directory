@@ -80,7 +80,7 @@
                         @endif
 
                         <tr>
-                            <td colspan="2"><button type="submit">ОК</td>
+                            <td colspan="2"><button type="submit" style="width:100%"><i class="fas fa-search" title="Применить фильтр"></i></td>
                             @foreach ($config['columns'] as $key => $column)
                                 <td class="{{ $key }}-column {{ $column['class'] ?? '' }}" {!! $column['attrs'] ?? '' !!}>
                                     <input type="text" name="filter[{{  $key }}]" value="{{ Str::of($_GET['filter'][$key] ?? '')->trim() }}">
