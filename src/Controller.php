@@ -14,20 +14,44 @@ class Controller
         ]);
     }
 
-    public function show(Directory $directory, SiteContent $document, SiteContent $folder = null)
+    public function show(Directory $directory, SiteContent $container, SiteContent $folder = null)
     {
-        if ($document->id) {
-            $config = $directory->getConfig($document->id);
-            $items  = $directory->getResources($folder ?? $document, $config);
+        if ($container->id) {
+            $config  = $directory->getConfig($container->id);
+            $current = $folder ?? $container;
+            $items   = $directory->getResources($current, $config);
 
             return view('directory::list', [
-                'document' => $document,
-                'folder'   => $folder,
-                'items'    => $items,
-                'config'   => $config,
-                'lang'     => $config['lang'],
+                'container' => $container,
+                'folder'    => $folder,
+                'crumbs'    => $this->getCrumbs($current, $container),
+                'items'     => $items,
+                'config'    => $config,
+                'lang'      => $config['lang'],
             ]);
         }
+    }
+
+    protected function getCrumbs(SiteContent $folder, SiteContent $container)
+    {
+        if ($container == $folder) {
+            return [];
+        }
+
+        $parents = [];
+
+        foreach (evo()->getParentIds($folder->id) as $id) {
+            $parents[] = $id;
+
+            if ($id == $container->id) {
+                break;
+            }
+        }
+
+        $result = SiteContent::whereIn('id', $parents)->get();
+        $result->push($folder);
+
+        return $result;
     }
 
     public function action(Request $request, Directory $directory)

@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('', [Controller::class, 'index'])
     ->name('directory::index');
 
-Route::get('show/{document}/{folder?}', [Controller::class, 'show'])
-    ->whereNumber('document')
+Route::get('show/{container}/{folder?}', [Controller::class, 'show'])
+    ->whereNumber('container')
     ->whereNumber('folder')
     ->name('directory::show');
 

@@ -1,22 +1,46 @@
 @extends('directory::layout')
 
-@section('pagetitle', $folder ? $folder->pagetitle : $document->pagetitle)
+@section('pagetitle', $folder ? $folder->pagetitle : $container->pagetitle)
 
 @section('buttons')
     <div id="actions">
         <div class="btn-group">
-            <a class="btn btn-success" href="index.php?a=4&pid={{ $document->id }}">
+            <a class="btn btn-success" href="index.php?a=4&pid={{ $container->id }}">
                 <i class="fa fa-file-o"></i><span>{{ $lang['create_child'] }}</span>
             </a>
             <a href="javascript:;" class="btn btn-secondary" onclick="location.reload();">
                 <i class="fa fa-refresh"></i><span>@lang('directory::messages.refresh')</span>
             </a>
-            <a class="btn btn-secondary" href="index.php?a=27&id={{ $document->id }}">
+            <a class="btn btn-secondary" href="index.php?a=27&id={{ $container->id }}">
                 <i class="fa fa-pencil"></i><span>{{ $lang['edit_document'] }}</span>
             </a>
         </div>
     </div>
 @endsection
+
+@if (!empty($crumbs))
+    @section('breadcrumbs')
+        <div class="crumbs">
+            <ul>
+                @foreach ($crumbs as $crumb)
+                    @if ($loop->last)
+                        <li class="current-crumb">
+                            {{ $crumb->pagetitle }}
+                    @else
+                        <li class="crumb">
+                            <a href="{{ route('directory::show', ['container' => $config['id'], 'folder' => $crumb->id != $container->id ? $crumb->id : null]) }}">
+                                @if ($loop->first)
+                                    <i class="fa fa-home"></i>
+                                @else
+                                    {{ $crumb->pagetitle }}
+                                @endif
+                            </a>
+                    @endif
+                @endforeach
+            </ul>
+        </div>
+    @endsection
+@endif
 
 @section('body')
     <div class="tab-page" id="tab_main">
@@ -57,7 +81,7 @@
                                     <td class="{{ $key }}-column {{ $column['class'] ?? '' }}" {!! $column['attrs'] ?? '' !!}>
                                         @if ($key == 'pagetitle')
                                             <i class="fa fa-level-up"></i>
-                                            <a href="{{ route('directory::show', ['document' => $config['id'], 'folder' => $folder->parent != $document->id ? $folder->parent : null]) }}">
+                                            <a href="{{ route('directory::show', ['container' => $config['id'], 'folder' => $folder->parent != $container->id ? $folder->parent : null]) }}">
                                                 ...
                                             </a>
                                         @endif
@@ -67,8 +91,8 @@
                         @endif
 
                         @forelse ($items as $item)
-                            <tr class="{{ $item->deleted ? 'item-deleted' : ''}} {{ !$item->published ? 'item-unpublished' : ''}} {{ $item->hidemenu ? 'item-hidden' : ''}}" data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}">
-                                <td><input type="checkbox" name="selected[]" value="{{ $item->id }}"></td>
+                            <tr class="{{ $item->deleted ? 'item-deleted' : ''}} {{ !$item->published ? 'item-unpublished' : ''}} {{ $item->hidemenu ? 'item-hidden' : ''}}" data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}" id="node{{ $item->id }}">
+                                <td data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}" data-href="{{ url($item->id) }}"><input type="checkbox" name="selected[]" value="{{ $item->id }}"></td>
                                 <td class="toggle-item-menu" onclick="directory.showMenu(event, {{ $item->id }},'{{ $item->pagetitle }}');" oncontextmenu="this.onclick(); return false;"><span class="fa fa-bars"></span></td>
 
                                 @foreach ($config['columns'] as $key => $column)
@@ -132,7 +156,7 @@
                 @endif
             </div>
 
-            <input type="hidden" name="folder_id" value="{{ $folder ? $folder->id : $document->id }}">
+            <input type="hidden" name="folder_id" value="{{ $folder ? $folder->id : $container->id }}">
         </form>
     </div>
 @endsection

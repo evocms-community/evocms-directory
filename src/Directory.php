@@ -203,7 +203,7 @@ class Directory
                         if ($row->isfolder) {
                             return '
                                 <i class="fa fa-folder"></i>
-                                <a href="' . route('directory::show', ['document' => $config['id'], 'folder' => $row->id]) . '">' . $row->pagetitle . '</a>
+                                <a href="' . route('directory::show', ['container' => $config['id'], 'folder' => $row->id]) . '">' . $row->pagetitle . '</a>
                             ';
                         } else {
                             return '

@@ -9,6 +9,8 @@
     @yield('buttons')
 
     <div class="sectionBody">
+        @yield('breadcrumbs')
+
         <div class="tab-pane" id="documentPane">
             <script type="text/javascript">
                 var tpModule = new WebFXTabPane(document.getElementById('documentPane'), false);
