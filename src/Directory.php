@@ -68,10 +68,13 @@ class Directory
 
         $items = $parent->children()
             ->withTVs($names)
-            ->when(isset($config['query']), $config['query'])
+            ->when(isset($config['query']), $config['query']);
+        $items = $this->injectFilters($items, array_keys($config['columns']));
+        $items = $items
             ->orderBy('isfolder', 'desc')
             ->orderBy('menuindex')
             ->paginate(20)
+            ->appends(request()->query())
             ->through(function($item) use ($config, $tvs) {
                 if (isset($config['prepare'])) {
                     $item = call_user_func($config['prepare'], $item, $config);
@@ -102,6 +105,97 @@ class Directory
             });
 
         return $items;
+    }
+
+
+    protected function injectFilters($query, $columns)
+    {
+        $tvs = $this->getTvNames($columns);
+        $content = array_diff($columns, $tvs);
+        $query = $this->injectContentFilters($query, $content);
+        $query = $this->injectTvFilters($query, $tvs);
+        return $query;
+    }
+
+    protected function injectContentFilters($query, $fields)
+    {
+        if(!empty($fields)) {
+            foreach($fields as $field) {
+                if(!empty($_GET['filter'][$field]) && is_scalar($_GET['filter'][$field])) {
+                    $value = trim($_GET['filter'][$field]);
+                    if(strpos($value, '=') === 0) {
+                        //точное совпадение
+                        $query = $query->where($field, ltrim($value, '='));
+                    } else {
+                        $query = $query->where($field, 'like', '%' . $value . '%');
+                    }
+                }
+            }
+        }
+        return $query;
+    }
+
+    protected function injectTvFilters($query, $fields)
+    {
+        $filters = [];
+        if(!empty($fields)) {
+            foreach($fields as $field) {
+                if(!empty($_GET['filter'][$field]) && is_scalar($_GET['filter'][$field])) {
+                    $op = 'like';
+                    $value = trim($_GET['filter'][$field]);
+                    $cast = '';
+                    switch(true) {
+                        case strpos($value, '>=') === 0:
+                            $op = '>=';
+                            $value = ltrim($value, '>=');
+                            $cast == ':UNSIGNED';
+                            break;
+                        case strpos($value, '<=') === 0:
+                            $op = '<=';
+                            $value = ltrim($value, '<=');
+                            $cast == ':UNSIGNED';
+                            break;
+                        case strpos($value, '!=') === 0:
+                            $op = '!=';
+                            $value = ltrim($value, '!=');
+                            break;
+                        case strpos($value, '=') === 0:
+                            $op = '=';
+                            $value = ltrim($value, '=');
+                            break;
+                        case strpos($value, '>') === 0:
+                            $op = '>';
+                            $value = ltrim($value, '>');
+                            $cast == ':UNSIGNED';
+                            break;
+                        case strpos($value, '<') === 0:
+                            $op = '<';
+                            $value = ltrim($value, '<');
+                            $cast == ':UNSIGNED';
+                            break;
+                        default:
+                            break;
+                    }
+                    $filters[] = 'tv:' . $field . ':' . $op . ':' . htmlspecialchars($value) . $cast;
+                }
+            }
+        }
+        if(!empty($filters)) {
+            $query = $query->tvFilter(implode(';', $filters));
+        }
+        return $query;
+    }
+    
+    protected function getTvNames($tvs)
+    {
+        $arr = [];
+        if(!empty($tvs)) {
+            $arr = SiteTmplvar::whereIn('name', $tvs)->get()->toArray();
+            if(!empty($arr)) {
+                $arr = array_column($arr, 'name');
+            }
+        }
+        return $arr;
     }
 
     public function actionPublish($resources)

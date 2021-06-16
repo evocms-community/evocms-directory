@@ -79,6 +79,16 @@
                             </tr>
                         @endif
 
+                        <tr>
+                            <td colspan="2"><button type="submit">ОК</td>
+                            @foreach ($config['columns'] as $key => $column)
+                                <td class="{{ $key }}-column {{ $column['class'] ?? '' }}" {!! $column['attrs'] ?? '' !!}>
+                                    <input type="text" name="filter[{{  $key }}]" value="{{ Str::of($_GET['filter'][$key] ?? '')->trim() }}">
+                                </td>
+                            @endforeach
+                        </tr>
+
+
                         @forelse ($items as $item)
                             <tr class="{{ $item->deleted ? 'item-deleted' : ''}} {{ !$item->published ? 'item-unpublished' : ''}} {{ $item->hidemenu ? 'item-hidden' : ''}}" data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}">
                                 <td><input type="checkbox" name="selected[]" value="{{ $item->id }}"></td>
