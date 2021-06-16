@@ -62,7 +62,7 @@ class Directory
         return null;
     }
 
-    public function getResources(SiteContent $parent, array $config)
+    public function getResources(SiteContent $parent, array $config, $limit = 25)
     {
         $names = array_keys($config['columns']);
         $tvs = $this->getTmplvarsValues($names);
@@ -72,7 +72,7 @@ class Directory
             ->when(isset($config['query']), $config['query'])
             ->orderBy('isfolder', 'desc')
             ->orderBy('menuindex')
-            ->paginate(20)
+            ->paginate($limit)
             ->through(function($item) use ($config, $tvs) {
                 if (isset($config['prepare'])) {
                     $item = call_user_func($config['prepare'], $item, $config);

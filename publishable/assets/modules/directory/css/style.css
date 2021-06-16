@@ -19,7 +19,7 @@
     display: flex;
     align-items: center;
 }
-.directory-page .flex > div:not(:last-child) {
+.directory-page .flex > :not(:last-child) {
     margin-right: 1rem;
 }
 .directory-page .selected-control label {
@@ -34,6 +34,11 @@
 .directory-page .pagination {
     display: inline-flex;
     margin: 0;
+    border-radius: 0;
+}
+.directory-page .pagination .page-link {
+    padding: .385rem .75rem;
+    border-radius: 0;
 }
 .directory-page .table.data thead {
     position: relative;

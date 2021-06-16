@@ -152,6 +152,14 @@
                         </div>
 
                         {{ $items->links('directory::links') }}
+
+                        <div class="limits">
+                            <select name="limit" class="form-control">
+                                @foreach ($config['limits'] as $limit)
+                                    <option @if ($currentLimit == $limit) selected @endif>{{ $limit }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 @endif
             </div>
@@ -194,6 +202,12 @@
                     parent.modx.main.work();
 
                     $.post("{{ route('directory::action') }}", $(this.form).serialize(), function(response) {
+                        location.reload();
+                    });
+                });
+
+                $('.limits select').on('change', function() {
+                    $.post("{{ route('directory::limit', $container->id) }}", {limit: $(this).val()}, function(response) {
                         location.reload();
                     });
                 });

@@ -14,3 +14,7 @@ Route::get('show/{container}/{folder?}', [Controller::class, 'show'])
 Route::post('action', [Controller::class, 'action'])
     ->name('directory::action');
 
+Route::post('limit/{container}', [Controller::class, 'setLimit'])
+    ->whereNumber('container')
+    ->name('directory::limit');
+

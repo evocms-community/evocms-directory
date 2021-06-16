@@ -19,7 +19,9 @@ class Controller
         if ($container->id) {
             $config  = $directory->getConfig($container->id);
             $current = $folder ?? $container;
-            $items   = $directory->getResources($current, $config);
+            $sessionKey = 'directory::limit.' . $container->id;
+            $limit   = session()->get($sessionKey, $config['default_limit']);
+            $items   = $directory->getResources($current, $config, $limit);
 
             return view('directory::list', [
                 'container' => $container,
@@ -28,6 +30,7 @@ class Controller
                 'items'     => $items,
                 'config'    => $config,
                 'lang'      => $config['lang'],
+                'currentLimit' => $limit,
             ]);
         }
     }
@@ -52,6 +55,23 @@ class Controller
         $result->push($folder);
 
         return $result;
+    }
+
+    public function setLimit(Request $request, SiteContent $container, Directory $directory)
+    {
+        $limit = $request->input('limit');
+
+        if ($container->id) {
+            $config = $directory->getConfig($container->id);
+
+            if (is_numeric($limit) && in_array($limit, $config['limits'])) {
+                $sessionKey = 'directory::limit.' . $container->id;
+                session()->put($sessionKey, $limit);
+                return response()->json(['status' => 'success']);
+            }
+        }
+
+        return response()->json(['status' => 'failed']);
     }
 
     public function action(Request $request, Directory $directory)
