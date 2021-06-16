@@ -19,6 +19,7 @@ class Controller
         if ($document->id) {
             $config = $directory->getConfig($document->id);
             $items  = $directory->getResources($folder ?? $document, $config);
+            $crumbs = $directory->getCrumbs($folder ?? $document);
 
             return view('directory::list', [
                 'document' => $document,
@@ -26,6 +27,7 @@ class Controller
                 'items'    => $items,
                 'config'   => $config,
                 'lang'     => $config['lang'],
+                'crumbs'     => $crumbs,
             ]);
         }
     }

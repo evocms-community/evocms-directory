@@ -1,6 +1,19 @@
 @extends('directory::layout')
 
-@section('pagetitle', $folder ? $folder->pagetitle : $document->pagetitle)
+@section('pagetitle')
+    {{ $folder ? $folder->pagetitle : $document->pagetitle }}
+    @if(!empty($crumbs))
+        <div style="font-size:11px;">
+        @foreach($crumbs as $crumb)
+            @if(!$loop->last)
+                 <a href="{{ route('directory::show', ['document' => $config['id'], 'folder' => $crumb->id ] ) }}">{{ $crumb->getAttribute('pagetitle') }}</a> →
+            @else
+                 {{ $crumb->pagetitle }}
+            @endif
+        @endforeach
+        </div>
+    @endif
+@endsection
 
 @section('buttons')
     <div id="actions">

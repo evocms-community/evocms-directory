@@ -175,6 +175,20 @@ class Directory
         return $result;
     }
 
+    public function getCrumbs($res)
+    {
+        $ancestors = null;
+        if(!empty($res->id)) {
+            $arr = array_reverse(array_keys(evo()->getParentIds($res->id)));
+            if(!empty($arr)) {
+                $ancestors = SiteContent::whereIn('id', $arr)
+                    ->orderByRaw("FIND_IN_SET(id, '" . implode(',', $arr) . "') ")
+                    ->get();
+            }
+        }
+        return $ancestors;
+    }
+
     private function getDefaultConfig()
     {
         return [
