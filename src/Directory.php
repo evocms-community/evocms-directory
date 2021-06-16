@@ -120,9 +120,10 @@ class Directory
     protected function injectContentFilters($query, $fields)
     {
         if(!empty($fields)) {
+            $filterRequest = $this->getFilterRequest();
             foreach($fields as $field) {
-                if(!empty($_GET['filter'][$field]) && is_scalar($_GET['filter'][$field])) {
-                    $value = trim($_GET['filter'][$field]);
+                if(!empty($filterRequest[$field]) && is_scalar($filterRequest[$field])) {
+                    $value = trim($filterRequest[$field]);
                     if(strpos($value, '=') === 0) {
                         //точное совпадение
                         $query = $query->where($field, ltrim($value, '='));
@@ -139,10 +140,11 @@ class Directory
     {
         $filters = [];
         if(!empty($fields)) {
+            $filterRequest = $this->getFilterRequest();
             foreach($fields as $field) {
-                if(!empty($_GET['filter'][$field]) && is_scalar($_GET['filter'][$field])) {
+                if(!empty($filterRequest[$field]) && is_scalar($filterRequest[$field])) {
                     $op = 'like';
-                    $value = trim($_GET['filter'][$field]);
+                    $value = trim($filterRequest[$field]);
                     $cast = '';
                     switch(true) {
                         case strpos($value, '>=') === 0:
@@ -184,6 +186,11 @@ class Directory
             $query = $query->tvFilter(implode(';', $filters));
         }
         return $query;
+    }
+
+    protected function getFilterRequest()
+    {
+        return request()->query('filter', []);
     }
     
     protected function getTvNames($tvs)
