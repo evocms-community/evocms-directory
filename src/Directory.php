@@ -126,9 +126,9 @@ class Directory
                     $value = trim($filterRequest[$field]);
                     if(strpos($value, '=') === 0) {
                         //точное совпадение
-                        $query = $query->where($field, ltrim($value, '='));
+                        $query = $query->where('site_content.' . $field, ltrim($value, '='));
                     } else {
-                        $query = $query->where($field, 'like', '%' . $value . '%');
+                        $query = $query->where('site_content.' . $field, 'like', '%' . $value . '%');
                     }
                 }
             }
