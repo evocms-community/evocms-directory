@@ -134,6 +134,32 @@ class Directory
         });
     }
 
+    public function getCrumbs(SiteContent $folder, SiteContent $container)
+    {
+        if ($container == $folder) {
+            return [];
+        }
+
+        $parents = [];
+
+        foreach (evo()->getParentIds($folder->id) as $id) {
+            $parents[] = $id;
+
+            if ($id == $container->id) {
+                break;
+            }
+        }
+
+        $parents = array_reverse($parents);
+
+        $result = SiteContent::query()
+            ->whereIn('id', $parents)
+            ->orderByRaw("FIND_IN_SET(id, '" . implode(',', $parents) . "')")
+            ->get();
+
+        return $result->push($folder);
+    }
+
     private function getTmplvarsValues(array $names = [])
     {
         $result = [];

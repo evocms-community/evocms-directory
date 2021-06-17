@@ -22,39 +22,18 @@ class Controller
             $sessionKey = 'directory::limit.' . $container->id;
             $limit   = session()->get($sessionKey, $config['default_limit']);
             $items   = $directory->getResources($current, $config, $limit);
+            $crumbs  = $directory->getCrumbs($current, $container);
 
             return view('directory::list', [
                 'container' => $container,
                 'folder'    => $folder,
-                'crumbs'    => $this->getCrumbs($current, $container),
+                'crumbs'    => $crumbs,
                 'items'     => $items,
                 'config'    => $config,
                 'lang'      => $config['lang'],
                 'currentLimit' => $limit,
             ]);
         }
-    }
-
-    protected function getCrumbs(SiteContent $folder, SiteContent $container)
-    {
-        if ($container == $folder) {
-            return [];
-        }
-
-        $parents = [];
-
-        foreach (evo()->getParentIds($folder->id) as $id) {
-            $parents[] = $id;
-
-            if ($id == $container->id) {
-                break;
-            }
-        }
-
-        $result = SiteContent::whereIn('id', $parents)->get();
-        $result->push($folder);
-
-        return $result;
     }
 
     public function setLimit(Request $request, SiteContent $container, Directory $directory)
