@@ -1,6 +1,19 @@
 @extends('directory::layout')
 
-@section('pagetitle', $folder ? $folder->pagetitle : $document->pagetitle)
+@section('pagetitle')
+    {{ $folder ? $folder->pagetitle : $document->pagetitle }}
+    @if(!empty($crumbs))
+        <div style="font-size:11px;">
+        @foreach($crumbs as $crumb)
+            @if(!$loop->last)
+                 <a href="{{ route('directory::show', ['document' => $config['id'], 'folder' => $crumb->id ] ) }}">{{ $crumb->getAttribute('pagetitle') }}</a> →
+            @else
+                 {{ $crumb->pagetitle }}
+            @endif
+        @endforeach
+        </div>
+    @endif
+@endsection
 
 @section('buttons')
     <div id="actions">
@@ -65,6 +78,16 @@
                                 @endforeach
                             </tr>
                         @endif
+
+                        <tr>
+                            <td colspan="2"><button type="submit" style="width:100%"><i class="fas fa-search" title="Применить фильтр"></i></td>
+                            @foreach ($config['columns'] as $key => $column)
+                                <td class="{{ $key }}-column {{ $column['class'] ?? '' }}" {!! $column['attrs'] ?? '' !!}>
+                                    <input type="text" name="filter[{{  $key }}]" value="{{ Str::of($_GET['filter'][$key] ?? '')->trim() }}">
+                                </td>
+                            @endforeach
+                        </tr>
+
 
                         @forelse ($items as $item)
                             <tr class="{{ $item->deleted ? 'item-deleted' : ''}} {{ !$item->published ? 'item-unpublished' : ''}} {{ $item->hidemenu ? 'item-hidden' : ''}}" data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}">

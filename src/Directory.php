@@ -4,6 +4,7 @@ namespace EvolutionCMS\Directory;
 
 use DocumentManager;
 use EvolutionCMS\Models\{SiteContent, SiteTmplvar};
+use EvolutionCMS\Directory\Filters;
 
 class Directory
 {
@@ -68,10 +69,15 @@ class Directory
 
         $items = $parent->children()
             ->withTVs($names)
-            ->when(isset($config['query']), $config['query'])
+            ->when(isset($config['query']), $config['query']);
+
+        $items = (new Filters())->injectFilters($items, array_keys($config['columns']));
+
+        $items = $items
             ->orderBy('isfolder', 'desc')
             ->orderBy('menuindex')
             ->paginate(20)
+            ->appends(request()->query())
             ->through(function($item) use ($config, $tvs) {
                 if (isset($config['prepare'])) {
                     $item = call_user_func($config['prepare'], $item, $config);
@@ -103,6 +109,7 @@ class Directory
 
         return $items;
     }
+
 
     public function actionPublish($resources)
     {
@@ -173,6 +180,20 @@ class Directory
         }
 
         return $result;
+    }
+
+    public function getCrumbs($res)
+    {
+        $ancestors = null;
+        if(!empty($res->id)) {
+            $arr = array_reverse(array_keys(evo()->getParentIds($res->id)));
+            if(!empty($arr)) {
+                $ancestors = SiteContent::whereIn('id', $arr)
+                    ->orderByRaw("FIND_IN_SET(id, '" . implode(',', $arr) . "') ")
+                    ->get();
+            }
+        }
+        return $ancestors;
     }
 
     private function getDefaultConfig()
