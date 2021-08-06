@@ -4,11 +4,6 @@ use EvolutionCMS\Models\SiteTmplvar;
 
 class Filters
 {
-    public function __construct()
-    {
-
-    }
-
     public function injectFilters($query, $columns = [])
     {
         $tvs = $this->getTvNames($columns);
@@ -91,7 +86,7 @@ class Filters
 
     protected function getFilterRequest()
     {
-        return request()->query('filter', []);
+        return request()->input('filter', []);
     }
 
     protected function getTvNames($tvs)

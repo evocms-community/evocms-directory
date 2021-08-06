@@ -2,6 +2,7 @@
 
 namespace EvolutionCMS\Directory;
 
+use EvolutionCMS\Directory\Filters;
 use EvolutionCMS\Models\SiteContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -66,8 +67,10 @@ class Controller
                     ->when(is_array($selected), function($query) use ($selected) {
                         return $query->whereIn('id', $selected);
                     })
-                    ->when($selected == 'all', function($query) use ($request) {
-                        return $query->where('parent', $request->input('folder_id'));
+                    ->when($selected == 'all', function($query) use ($request, $directory) {
+                        $config = $directory->getConfig($request->container_id);
+                        $query = (new Filters())->injectFilters($query, array_keys($config['columns']));
+                        return $query->where('parent', $request->folder_id);
                     });
 
                 call_user_func([$directory, $action], $resources);
