@@ -20,4 +20,5 @@ return [
     'action_delete' => 'Удалить',
     'action_restore' => 'Восстановить',
     'action_duplicate' => 'Копировать',
+    'reset_filters' => 'Сбросить фильтры',
 ];

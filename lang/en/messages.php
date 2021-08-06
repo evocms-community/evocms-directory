@@ -20,4 +20,5 @@ return [
     'action_delete' => 'Delete',
     'action_restore' => 'Undelete',
     'action_duplicate' => 'Duplicate',
+    'reset_filters' => 'Reset filters',
 ];

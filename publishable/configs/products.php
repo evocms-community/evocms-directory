@@ -18,6 +18,8 @@ return [
              */
             'caption' => '',
 
+            'filterable' => false,
+
             /**
              * функция рендера ячейки
              *

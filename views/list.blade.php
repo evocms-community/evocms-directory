@@ -8,6 +8,13 @@
             <a class="btn btn-success" href="index.php?a=4&pid={{ $container->id }}">
                 <i class="fa fa-file-o"></i><span>{{ $lang['create_child'] }}</span>
             </a>
+
+            @if (request()->has('filter'))
+                <a href="javascript:;" class="btn btn-secondary" onclick="location = location.pathname;">
+                    <i class="fa fa-times-circle"></i><span>@lang('directory::messages.reset_filters')</span>
+                </a>
+            @endif
+
             <a href="javascript:;" class="btn btn-secondary" onclick="location.reload();">
                 <i class="fa fa-refresh"></i><span>@lang('directory::messages.refresh')</span>
             </a>
@@ -94,7 +101,9 @@
                             <td colspan="2"><button type="submit" style="width:100%"><i class="fas fa-search" title="Применить фильтр"></i></td>
                             @foreach ($config['columns'] as $key => $column)
                                 <td class="{{ $key }}-column {{ $column['class'] ?? '' }}" {!! $column['attrs'] ?? '' !!}>
-                                    <input type="text" name="filter[{{  $key }}]" value="{{ Str::of($_GET['filter'][$key] ?? '')->trim() }}">
+                                    @if (!isset($column['filterable']) || $column['filterable'] != false)
+                                        <input type="text" name="filter[{{  $key }}]" value="{{ Str::of($_GET['filter'][$key] ?? '')->trim() }}">
+                                    @endif
                                 </td>
                             @endforeach
                         </tr>
