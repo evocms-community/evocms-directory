@@ -64,7 +64,7 @@ html, body {
 }
 
 .directory-page .crumbs {
-    margin: 0 0.8rem 1rem;
+    padding: 0 0.8rem 1rem;
 }
 .directory-page .crumbs ul {
     margin: 0;
@@ -83,4 +83,16 @@ html, body {
 .directory-page .crumbs ul li.crumb:after {
     content: '/';
     margin: 0 0.25rem;
+}
+
+.darkness .directory-page .table.data thead td,
+.darkness .directory-page .table-footer {
+    background: #202329;
+}
+.darkness .directory-page .table-footer .page-link {
+    background: #282c34;
+    border-color: #202329;
+}
+.darkness .directory-page .crumbs {
+    background: #202329;
 }
