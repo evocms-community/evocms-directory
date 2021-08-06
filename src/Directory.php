@@ -79,7 +79,7 @@ class Directory
             ->orderBy('isfolder', 'desc')
             ->orderBy('menuindex')
             ->paginate($limit)
-            ->appends(request()->query())
+            ->appends(request()->only('filter'))
             ->through(function($item) use ($config, $tvs) {
                 if (isset($config['prepare'])) {
                     $item = call_user_func($config['prepare'], $item, $config);

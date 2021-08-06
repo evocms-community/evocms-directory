@@ -284,6 +284,10 @@
             init: function() {
                 this.initChecks();
 
+                $('#tab_main form').submit(function() {
+                    $(this).find('[name="limit"], [name="container_id"], [name="folder_id"], [name="action"]').attr('disabled', true);
+                });
+
                 $('.list-actions select').change(function() {
                     if (this.value == '') {
                         return;
