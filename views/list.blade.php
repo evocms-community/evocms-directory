@@ -156,7 +156,8 @@
 
                         <div class="list-summary">
                             @lang('directory::messages.shown_from', [
-                                'count' => $items->count(),
+                                'first' => $items->firstItem(),
+                                'last'  => $items->lastItem(),
                                 'total' => $items->total(),
                             ])
                         </div>

@@ -8,7 +8,7 @@ return [
     'pagetitle' => 'Title',
     'created_at' => 'Created',
     'updated_at' => 'Edited',
-    'shown_from' => 'Shown: :count of :total',
+    'shown_from' => 'Shown: :first-:last of :total',
     'edit_item' => 'Edit',
     'no_items' => 'The list is empty',
     'create_child' => 'Create a child document',

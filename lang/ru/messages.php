@@ -8,7 +8,7 @@ return [
     'pagetitle' => 'Название',
     'created_at' => 'Создан',
     'updated_at' => 'Изменен',
-    'shown_from' => 'Показано: :count из :total',
+    'shown_from' => 'Показано: :first-:last из :total',
     'edit_item' => 'Редактировать элемент',
     'no_items' => 'Список пуст',
     'create_child' => 'Создать дочерний документ',
