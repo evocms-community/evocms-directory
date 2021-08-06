@@ -18,3 +18,7 @@ Event::listen('evolution.OnManagerNodePrerender', function($params) {
 
     return serialize($params['ph']);
 });
+
+Event::listen('evolution.OnManagerTreePrerender', function($params) {
+    return evo()->directory->registerTreeScript();
+});

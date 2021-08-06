@@ -4,6 +4,8 @@ namespace EvolutionCMS\Directory;
 
 use DocumentManager;
 use EvolutionCMS\Models\{SiteContent, SiteTmplvar};
+use EvolutionCMS\Directory\Filters;
+use Illuminate\Support\Facades\View;
 
 class Directory
 {
@@ -69,10 +71,15 @@ class Directory
 
         $items = $parent->children()
             ->withTVs($names)
-            ->when(isset($config['query']), $config['query'])
+            ->when(isset($config['query']), $config['query']);
+
+        $items = (new Filters())->injectFilters($items, array_keys($config['columns']));
+
+        $items = $items
             ->orderBy('isfolder', 'desc')
             ->orderBy('menuindex')
             ->paginate($limit)
+            ->appends(request()->query())
             ->through(function($item) use ($config, $tvs) {
                 if (isset($config['prepare'])) {
                     $item = call_user_func($config['prepare'], $item, $config);
@@ -104,6 +111,7 @@ class Directory
 
         return $items;
     }
+
 
     public function actionPublish($resources)
     {
@@ -200,6 +208,11 @@ class Directory
         }
 
         return $result;
+    }
+
+    public function registerTreeScript()
+    {
+        return View::make('directory::treescript')->toHtml();
     }
 
     private function getDefaultConfig()

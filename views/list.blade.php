@@ -90,6 +90,16 @@
                             </tr>
                         @endif
 
+                        <tr>
+                            <td colspan="2"><button type="submit" style="width:100%"><i class="fas fa-search" title="Применить фильтр"></i></td>
+                            @foreach ($config['columns'] as $key => $column)
+                                <td class="{{ $key }}-column {{ $column['class'] ?? '' }}" {!! $column['attrs'] ?? '' !!}>
+                                    <input type="text" name="filter[{{  $key }}]" value="{{ Str::of($_GET['filter'][$key] ?? '')->trim() }}">
+                                </td>
+                            @endforeach
+                        </tr>
+
+
                         @forelse ($items as $item)
                             <tr class="{{ $item->deleted ? 'item-deleted' : ''}} {{ !$item->published ? 'item-unpublished' : ''}} {{ $item->hidemenu ? 'item-hidden' : ''}}" data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}" id="node{{ $item->id }}">
                                 <td data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}" data-href="{{ url($item->id) }}"><input type="checkbox" name="selected[]" value="{{ $item->id }}"></td>
@@ -107,7 +117,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="text-center">
+                                <td class="text-center" colspan="{{ count($config['columns']) + 2 }}">
                                     {{ $lang['no_items'] }}
                                 </td>
                             </tr>
@@ -170,29 +180,98 @@
 @endsection
 
 @push('scripts')
+    <div id="mx_contextmenu" class="dropdown" onselectstart="return false;">
+        <div id="nameHolder">&nbsp;</div>
+
+        @if (evo()->hasPermission('new_document'))
+            <div class="menuLink" id="item3" onclick="directory.menuHandler(3);">
+                <i class="fa fa-file-o"></i>
+                @lang('global.create_resource_here')
+            </div>
+        @endif
+
+        @if (evo()->hasPermission('edit_document'))
+            <div class="menuLink" id="item2" onclick="directory.menuHandler(2);">
+                <i class="fa fa-edit"></i>
+                @lang('global.edit_resource')
+            </div>
+        @endif
+
+        @if (evo()->hasPermission('save_document'))
+            <div class="menuLink" id="item5" onclick="directory.menuHandler(5);">
+                <i class="fa fa-arrows"></i>
+                @lang('global.move_resource')
+            </div>
+        @endif
+
+        @if (evo()->hasPermission('new_document'))
+            <div class="menuLink" id="item7" onclick="directory.menuHandler(7);">
+                <i class="fa fa-clone"></i>
+                @lang('global.resource_duplicate')
+            </div>
+        @endif
+
+        @if (evo()->hasPermission('edit_document') && evo()->hasPermission('save_document'))
+            <div class="menuLink" id="item11" onclick="directory.menuHandler(11);">
+                <i class="fa fa-sort-numeric-asc"></i>
+                @lang('global.sort_menuindex')
+            </div>
+        @endif
+
+        <div class="seperator"></div>
+
+        @if (evo()->hasPermission('publish_document'))
+            <div class="menuLink" id="item9" onclick="directory.menuHandler(9);" style="display: none;">
+                <i class="fa fa-check"></i>
+                @lang('global.publish_resource')
+            </div>
+
+            <div class="menuLink" id="item10" onclick="directory.menuHandler(10);" style="display: block;">
+                <i class="fa fa-close"></i>
+                @lang('global.unpublish_resource')
+            </div>
+        @endif
+
+        @if (evo()->hasPermission('delete_document'))
+            <div class="menuLink" id="item4" onclick="directory.menuHandler(4);" style="display: block;">
+                <i class="fa fa-trash"></i>
+                @lang('global.delete_resource')
+            </div>
+
+            <div class="menuLink" id="item8" onclick="directory.menuHandler(8);" style="display: none;">
+                <i class="fa fa-undo"></i>
+                @lang('global.undelete_resource')
+            </div>
+        @endif
+
+        <div class="seperator"></div>
+
+        @if (evo()->hasPermission('new_document'))
+            <div class="menuLink" id="item6" onclick="directory.menuHandler(6);">
+                <i class="fa fa-link"></i>
+                @lang('global.create_weblink_here')
+            </div>
+        @endif
+
+        <div class="seperator"></div>
+
+        @if (evo()->hasPermission('view_document'))
+            <div class="menuLink" id="item1" onclick="directory.menuHandler(1);">
+                <i class="fa fa-info"></i>
+                @lang('global.resource_overview')
+            </div>
+        @endif
+
+        <div class="menuLink" id="item12" onclick="directory.menuHandler(12);">
+            <i class="fa fa-eye"></i>
+            @lang('global.preview_resource')
+        </div>
+    </div>
+
     <script>
         var directory = {
             init: function() {
                 this.initChecks();
-
-                if (!parent.modx.tree.hackedDirectory) {
-                    this.originalMenuHandler = parent.modx.tree.menuHandler;
-                    this.originalRestoreTree = parent.modx.tree.restoreTree;
-                    parent.modx.tree.hackedDirectory = true;
-
-                    parent.modx.tree.menuHandler = function(action) {
-                        parent.modx.tree.restoreTree = function() {
-                            directory.originalRestoreTree.call(parent.modx.tree);
-                            parent.modx.tree.restoreTree = directory.originalRestoreTree;
-
-                            if ([7,9,10,4,8].indexOf(action) !== -1) {
-                                location.reload();
-                            }
-                        };
-
-                        directory.originalMenuHandler.call(parent.modx.tree, action);
-                    };
-                }
 
                 $('.list-actions select').change(function() {
                     if (this.value == '') {
@@ -262,6 +341,106 @@
                 });
             },
 
+            menuHandler: function(action) {
+                switch (action) {
+                    case 1:
+                        parent.modx.tabs({
+                            url: parent.modx.MODX_MANAGER_URL + "?a=3&id=" + this.itemToChange,
+                            title: this.selectedObjectName + "<small>(" + this.itemToChange + ")</small>"
+                        });
+                        break;
+                    case 2:
+                        parent.modx.tabs({
+                            url: parent.modx.MODX_MANAGER_URL + "?a=27&r=1&id=" + this.itemToChange,
+                            title: this.selectedObjectName + "<small>(" + this.itemToChange + ")</small>"
+                        });
+                        break;
+                    case 3:
+                        parent.modx.tabs({
+                            url: parent.modx.MODX_MANAGER_URL + "?a=4&pid=" + this.itemToChange,
+                            title: this.selectedObjectName + "<small>(" + this.itemToChange + ")</small>"
+                        });
+                        break;
+                    case 4:
+                        if (this.selectedObjectDeleted) {
+                            alert('"' + this.selectedObjectName + '" ' + parent.modx.lang.already_deleted);
+                        } else {
+                            confirm('"' + this.selectedObjectName + '"\n\n' + parent.modx.lang.confirm_delete_resource) === !0 && parent.modx.tabs({
+                                url: parent.modx.MODX_MANAGER_URL + "?a=6&id=" + this.itemToChange,
+                                title: this.selectedObjectName + "<small>(" + this.itemToChange + ")</small>"
+                            });
+                        }
+                        break;
+                    case 5:
+                        parent.modx.tabs({
+                            url: parent.modx.MODX_MANAGER_URL + "?a=51&id=" + this.itemToChange,
+                            title: this.selectedObjectName + "<small>(" + this.itemToChange + ")</small>"
+                        });
+                        break;
+                    case 6:
+                        parent.modx.tabs({
+                            url: parent.modx.MODX_MANAGER_URL + "?a=72&pid=" + this.itemToChange,
+                            title: this.selectedObjectName + "<small>(" + this.itemToChange + ")</small>"
+                        });
+                        break;
+                    case 7:
+                        if (confirm(parent.modx.lang.confirm_resource_duplicate)) {
+                            parent.modx.tabs({
+                                url: parent.modx.MODX_MANAGER_URL + "?a=94&id=" + this.itemToChange,
+                                title: this.selectedObjectName + "<small>(" + this.itemToChange + ")</small>"
+                            });
+                        }
+                        break;
+                    case 8:
+                        if (this.selectedObjectDeleted) {
+                            if (confirm('"' + this.selectedObjectName + '" ' + parent.modx.lang.confirm_undelete)) {
+                                parent.modx.tabs({
+                                    url: parent.modx.MODX_MANAGER_URL + "?a=63&id=" + this.itemToChange,
+                                    title: this.selectedObjectName + "<small>(" + this.itemToChange + ")</small>"
+                                });
+                            }
+                        } else {
+                            alert('"' + this.selectedObjectName + '"' + parent.modx.lang.not_deleted);
+                        }
+                        break;
+                    case 9:
+                        if (confirm('"' + this.selectedObjectName + '" ' + parent.modx.lang.confirm_publish)) {
+                            parent.modx.tabs({
+                                url: parent.modx.MODX_MANAGER_URL + "?a=61&id=" + this.itemToChange,
+                                title: this.selectedObjectName + "<small>(" + this.itemToChange + ")</small>"
+                            });
+                        }
+                        break;
+                    case 10:
+                        if (this.itemToChange !== parent.modx.config.site_start) {
+                            if (confirm('"' + this.selectedObjectName + '" ' + parent.modx.lang.confirm_unpublish)) {
+                                parent.modx.tabs({
+                                    url: parent.modx.MODX_MANAGER_URL + "?a=62&id=" + this.itemToChange,
+                                    title: this.selectedObjectName + "<small>(" + this.itemToChange + ")</small>"
+                                });
+                            }
+                        } else {
+                            alert("Document is linked to site_start variable and cannot be unpublished!");
+                        }
+                        break;
+                    case 11:
+                        parent.modx.tabs({
+                            url: parent.modx.MODX_MANAGER_URL + "?a=56&id=" + this.itemToChange,
+                            title: this.selectedObjectName + "<small>(" + this.itemToChange + ")</small>"
+                        });
+                        break;
+                    case 12:
+                        window.open(document.getElementById("node" + this.itemToChange).firstChild.dataset.href, "previeWin");
+                        break;
+                    default:
+                        alert("Unknown operation command.");
+                }
+
+                if ([7, 9, 10, 4, 8].indexOf(action) !== -1) {
+                    location.reload();
+                }
+            },
+
             showMenu: function(e, id, title) {
                 if (e.ctrlKey) {
                     return;
@@ -270,23 +449,23 @@
                 e.preventDefault();
                 e.stopPropagation();
 
-                var body = parent.document.getElementById('frameset'),
+                var body = document.body,
                     el = e.currentTarget,
                     row = e.currentTarget.parentElement,
                     x = 0,
                     y = 0;
 
                 if (el) {
-                    var menu = parent.document.getElementById('mx_contextmenu');
+                    var menu = document.getElementById('mx_contextmenu');
                     e.target.dataset.toggle = '#mx_contextmenu';
                     parent.modx.hideDropDown(e);
 
-                    var i4 = parent.document.getElementById('item4'),
-                        i5 = parent.document.getElementById('item5'),
-                        i8 = parent.document.getElementById('item8'),
-                        i9 = parent.document.getElementById('item9'),
-                        i10 = parent.document.getElementById('item10'),
-                        i11 = parent.document.getElementById('item11');
+                    var i4 = document.getElementById('item4'),
+                        i5 = document.getElementById('item5'),
+                        i8 = document.getElementById('item8'),
+                        i9 = document.getElementById('item9'),
+                        i10 = document.getElementById('item10'),
+                        i11 = document.getElementById('item11');
 
                     if (parent.modx.permission.publish_document === 1) {
                         i9.style.display = 'block';
@@ -329,22 +508,24 @@
                         y = y - menu.offsetHeight / 2;
                     }
 
-                    x += parent.document.getElementById('main').offsetLeft;
-
                     if (title.length > 30) {
                         title = title.substr(0, 30) + '...';
                     }
-                    var f = parent.document.getElementById('nameHolder');
+                    var f = document.getElementById('nameHolder');
                     f.innerHTML = title;
                     menu.style.left = x + (parent.modx.config.textdir === 'rtl' ? '-190' : '') + 'px';
                     menu.style.top = y + 'px';
                     menu.classList.add('show');
 
-                    parent.modx.tree.itemToChange = id;
+                    this.selectedObjectName = title;
+                    this.selectedObjectDeleted = parseInt(row.dataset.deleted) === 1;
+                    this.itemToChange = id;
                 }
             }
         };
 
         directory.init();
+
+        parent.directory.registerInstance(window, directory);
     </script>
 @endpush
