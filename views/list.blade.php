@@ -112,7 +112,7 @@
                         @forelse ($items as $item)
                             <tr class="{{ $item->deleted ? 'item-deleted' : ''}} {{ !$item->published ? 'item-unpublished' : ''}} {{ $item->hidemenu ? 'item-hidden' : ''}}" data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}" id="node{{ $item->id }}">
                                 <td data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}" data-href="{{ url($item->id) }}"><input type="checkbox" name="selected[]" value="{{ $item->id }}"></td>
-                                <td class="toggle-item-menu" onclick="directory.showMenu(event, {{ $item->id }},'{{ $item->pagetitle }}');" oncontextmenu="this.onclick(); return false;"><span class="fa fa-bars"></span></td>
+                                <td class="toggle-item-menu" onclick="directory.showMenu(event, {{ $item->id }}, '{{ $item->pagetitle }}');" oncontextmenu="this.onclick(event); return false;"><span class="fa fa-bars"></span></td>
 
                                 @foreach ($config['columns'] as $key => $column)
                                     <td class="{{ $key }}-column {{ $column['class'] ?? '' }}" {!! $column['attrs'] ?? '' !!}>
@@ -464,8 +464,7 @@
                 e.preventDefault();
                 e.stopPropagation();
 
-                var body = document.body,
-                    el = e.currentTarget,
+                var el = e.currentTarget,
                     row = e.currentTarget.parentElement,
                     x = 0,
                     y = 0;
@@ -512,16 +511,18 @@
                             i11.style.display = 'none';
                         }
                     }
-                    var bodyHeight = body.offsetHeight + body.offsetTop;
+
                     x = e.clientX > 0 ? e.clientX : e.pageX;
                     y = e.clientY > 0 ? e.clientY : e.pageY;
-                    if (y + menu.offsetHeight / 2 > bodyHeight) {
-                        y = bodyHeight - menu.offsetHeight - 5;
-                    } else if (y - menu.offsetHeight / 2 < body.offsetTop) {
-                        y = body.offsetTop + 5;
+                    if (y + menu.offsetHeight / 2 > window.innerHeight) {
+                        y = window.innerHeight - menu.offsetHeight - 5;
+                    } else if (y - menu.offsetHeight / 2 < 0) {
+                        y = 0 + 5;
                     } else {
                         y = y - menu.offsetHeight / 2;
                     }
+
+                    y += window.scrollY;
 
                     if (title.length > 30) {
                         title = title.substr(0, 30) + '...';
