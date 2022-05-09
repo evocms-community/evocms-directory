@@ -53,6 +53,10 @@ class Directory
             }, $config['columns']);
 
             uasort($config['columns'], function($a, $b) {
+                if (!isset($a['sort']) || !isset($b['sort'])) {
+                    return 0;
+                }
+
                 return $a['sort'] - $b['sort'];
             });
 
@@ -71,7 +75,9 @@ class Directory
 
         $items = $parent->children()
             ->withTVs($names)
-            ->when(isset($config['query']), $config['query']);
+            ->when(isset($config['query']), function ($query) use ($config) {
+                return call_user_func($config['query'], $query);
+            });
 
         $items = (new Filters())->injectFilters($items, array_keys($config['columns']));
 
@@ -112,7 +118,6 @@ class Directory
         return $items;
     }
 
-
     public function actionPublish($resources)
     {
         $resources->update(['published' => 1]);
@@ -130,7 +135,7 @@ class Directory
 
     public function actionRestore($resources)
     {
-        $resources->update(['deleted' => 0]);
+        $resources->withTrashed()->update(['deleted' => 0]);
     }
 
     public function actionDuplicate($resources)

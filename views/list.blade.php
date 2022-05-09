@@ -80,7 +80,7 @@
 
                     <tbody class="directory-list">
                         @if ($folder)
-                            <tr data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}">
+                            <tr>
                                 <td></td>
                                 <td></td>
 
@@ -116,7 +116,7 @@
 
                                 @foreach ($config['columns'] as $key => $column)
                                     <td class="{{ $key }}-column {{ $column['class'] ?? '' }}" {!! $column['attrs'] ?? '' !!}>
-                                        @if ($column['renderer'])
+                                        @if (isset($column['renderer']))
                                             {!! call_user_func($column['renderer'], $item->getAttribute($key), $item, $config) !!}
                                         @else
                                             {{ $item->getAttribute($key) }}
