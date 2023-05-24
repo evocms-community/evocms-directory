@@ -111,7 +111,7 @@
 
                         @forelse ($items as $item)
                             <tr class="{{ $item->deleted ? 'item-deleted' : ''}} {{ !$item->published ? 'item-unpublished' : ''}} {{ $item->hidemenu ? 'item-hidden' : ''}}" data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}" id="node{{ $item->id }}">
-                                <td data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}" data-href="{{ url($item->id) }}"><input type="checkbox" name="selected[]" value="{{ $item->id }}"></td>
+                                <td data-published="{{ $item->published }}" data-deleted="{{ $item->deleted }}" data-isfolder="{{ $item->isfolder }}" data-href="@makeUrl($item->id)"><input type="checkbox" name="selected[]" value="{{ $item->id }}"></td>
                                 <td class="toggle-item-menu" onclick='directory.showMenu(event, {{ $item->id }}, "{{ htmlentities($item->pagetitle) }}");' oncontextmenu="this.onclick(event); return false;"><span class="fa fa-bars"></span></td>
 
                                 @foreach ($config['columns'] as $key => $column)
@@ -445,7 +445,7 @@
                         });
                         break;
                     case 12:
-                        window.open(document.getElementById("node" + this.itemToChange).firstChild.dataset.href, "previeWin");
+                        window.open(document.getElementById("node" + this.itemToChange).firstElementChild.dataset.href, "previeWin");
                         break;
                     default:
                         alert("Unknown operation command.");
