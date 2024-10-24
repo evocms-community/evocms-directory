@@ -10,7 +10,7 @@ Event::listen('evolution.OnManagerNodePrerender', function($params) {
             $params['ph'],
             $config['tree_config'],
             [
-                'tree_page_click' => route('directory::show', $params['ph']['id']),
+                'tree_page_click' => route('directory::show', $params['ph']['id']) . '?id=' . $params['ph']['id'],
                 'showChildren'    => '0',
             ]
         );
