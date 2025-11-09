@@ -186,6 +186,7 @@
 
             <input type="hidden" name="container_id" value="{{ $container->id }}">
             <input type="hidden" name="folder_id" value="{{ $folder ? $folder->id : $container->id }}">
+            {!! csrf_field() !!}
         </form>
     </div>
 @endsection
