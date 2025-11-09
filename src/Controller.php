@@ -22,6 +22,8 @@ class Controller
             $current = $folder ?? $container;
             $sessionKey = 'directory::limit.' . $container->id;
             $limit   = session()->get($sessionKey, $config['default_limit']);
+            $order_field  = $config['order_field'] ?? 'meunidex';
+            $order_dir = $config['order_dir'] ?? 'meunidex';
             $items   = $directory->getResources($current, $config, $limit);
             $crumbs  = $directory->getCrumbs($current, $container);
 

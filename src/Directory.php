@@ -83,7 +83,7 @@ class Directory
 
         $items = $items
             ->orderBy('isfolder', 'desc')
-            ->orderBy('menuindex')
+            ->orderBy($config['order_field'],$config['order_dir'])
             ->paginate($limit)
             ->appends(request()->only('filter'))
             ->through(function($item) use ($config, $tvs) {
