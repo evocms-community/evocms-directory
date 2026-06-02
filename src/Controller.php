@@ -18,7 +18,15 @@ class Controller
     public function show(Directory $directory, SiteContent $container, SiteContent $folder = null)
     {
         if ($container->id) {
-            $config  = $directory->getConfig($container->id);
+            $configId = $folder ? $folder->id : $container->id;
+            $config = $directory->getConfig($configId);
+            if (!$config && $folder) {
+                $config = $directory->getConfig($container->id);
+            }
+            if (!$config) {
+                abort(404, 'Directory config not found');
+            }
+
             $current = $folder ?? $container;
             $sessionKey = 'directory::limit.' . $container->id;
             $limit   = session()->get($sessionKey, $config['default_limit']);
