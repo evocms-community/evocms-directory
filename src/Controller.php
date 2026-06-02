@@ -24,7 +24,7 @@ class Controller
                 $config = $directory->getConfig($container->id);
             }
             if (!$config) {
-                abort(404, 'Directory config not found');
+                return response('Directory config not found', 404);
             }
 
             $current = $folder ?? $container;
