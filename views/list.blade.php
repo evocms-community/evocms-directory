@@ -88,7 +88,7 @@
                                     <td class="{{ $key }}-column {{ $column['class'] ?? '' }}" {!! $column['attrs'] ?? '' !!}>
                                         @if ($key == 'pagetitle')
                                             <i class="fa fa-level-up"></i>
-                                            <a href="{{ route('directory::show', ['container' => $container->id, 'folder' => $folder->parent != $container->id ? $folder->parent : null]) }}">
+                                            <a href="{{ route('directory::show', ['container' => $config['container_id'], 'folder' => $folder->parent != $config['container_id'] ? $folder->parent : null]) }}">
                                                 ...
                                             </a>
                                         @endif

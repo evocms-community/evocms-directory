@@ -20,6 +20,7 @@ class Controller
         if ($container->id) {
             $configId = $folder ? $folder->id : $container->id;
             $config = $directory->getConfig($configId);
+            $config['container_id'] = $container->id;
             if (!$config && $folder) {
                 $config = $directory->getConfig($container->id);
             }
